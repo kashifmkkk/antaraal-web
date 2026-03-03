@@ -1,0 +1,9 @@
+node_modules
+.env
+.env.*
+dist
+.git
+docker-compose.override.yml
+npm-debug.log
+.vscode
+*.tgz
