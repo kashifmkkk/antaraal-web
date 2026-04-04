@@ -14,7 +14,7 @@ RETRY=0
 MAX_RETRY=120
 while true; do
   echo "Attempting database connectivity check (try=$RETRY)"
-  if npx prisma migrate deploy 2>&1 | head -1; then
+  if npx prisma migrate deploy; then
     echo "Database is reachable"
     break
   fi
@@ -31,7 +31,7 @@ echo "Database reachable — generating Prisma client"
 npx prisma generate
 
 echo "Applying migrations"
-npx prisma migrate deploy || true
+npx prisma migrate deploy
 
 echo "Building backend application"
 npm run build

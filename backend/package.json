@@ -11,6 +11,7 @@
     "build": "tsc -p tsconfig.json",
     "seed": "npx ts-node prisma/seed.ts",
     "start": "node dist/index.js",
+    "start:render": "node scripts/start-render.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:seed": "ts-node prisma/seed.ts",

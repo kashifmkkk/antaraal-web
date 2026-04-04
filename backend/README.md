@@ -44,3 +44,8 @@ APIs available:
 The backend container includes an entrypoint that attempts to run `prisma generate`, apply migrations (if any), and run the seed script on container start. This helps initialize the database when using `docker-compose up`.
 
 Note: For local development (outside container) run `npx prisma generate` before running the seed script.
+
+Render deployment note:
+- Use Render's internal PostgreSQL URL for `DATABASE_URL` (`*.render.internal`) to avoid Prisma `P1001` connectivity errors.
+- Use `npm run start:render` as your start command. It runs `prisma migrate deploy` with retry/backoff before launching the server.
+- Optional tuning vars: `DB_MIGRATE_MAX_ATTEMPTS` (default `15`) and `DB_MIGRATE_BASE_DELAY_MS` (default `2000`).

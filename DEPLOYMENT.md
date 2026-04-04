@@ -39,13 +39,16 @@
      - **Name**: `antaraal-backend`
      - **Runtime**: Node
      - **Build Command**: `npm install && npx prisma generate && npm run build`
-     - **Start Command**: `npx prisma migrate deploy && node dist/index.js`
+       - **Start Command**: `npm run start:render`
      - **Plan**: Free
    - **Environment Variables** (click "Add Environment Variable"):
-     - `DATABASE_URL` = (paste the Internal Database URL from step 2)
+       - `DATABASE_URL` = (paste the Internal Database URL from step 2)
+       - `DATABASE_URL_INTERNAL` = (optional fallback to same Internal URL)
      - `JWT_SECRET` = (any random secure string, e.g., `SkywayTrade2025SecretKey!@#`)
      - `PORT` = `4000`
      - `NODE_ENV` = `production`
+       - `DB_MIGRATE_MAX_ATTEMPTS` = `15`
+       - `DB_MIGRATE_BASE_DELAY_MS` = `2000`
    - Click **"Create Web Service"**
 
 4. Wait for the build to complete (5-10 minutes)
@@ -145,6 +148,9 @@ GoDaddy usually provides free SSL. In cPanel:
 
 ### Backend is slow on first request
 → Render free tier sleeps after 15 minutes of inactivity. First request takes ~30 seconds to wake up. This is normal for the free plan. Upgrade to paid ($7/month) for always-on.
+
+### Prisma `P1001` during startup on Render
+→ Usually caused by using an external DB URL or DB cold start. Ensure `DATABASE_URL` uses Render's **Internal Database URL** (`*.render.internal`) and keep `npm run start:render`, which retries `prisma migrate deploy` with backoff.
 
 ### Database is empty
 → You need to seed it via Render Shell. See Step 1C.
