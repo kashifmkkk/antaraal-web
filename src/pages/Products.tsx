@@ -11,6 +11,7 @@ import QuoteModal from "@/components/QuoteModal";
 import { useAuth } from "@/context/AuthContext";
 import LoadingLogo from "@/components/LoadingLogo";
 import { useToast } from "@/hooks/use-toast";
+import { asArray } from "@/lib/utils";
 import engineBlade from "@/assets/engine-blade.jpg";
 import hydraulicPump from "@/assets/hydraulic-pump.jpg";
 import landingGear from "@/assets/landing-gear.jpg";
@@ -128,7 +129,7 @@ const Products = () => {
   const qParam = (searchParams.get('q') || '').toLowerCase().trim();
 
   const products = useMemo<UiProduct[]>(() => {
-    const raw = (data ?? []) as ApiProduct[];
+    const raw = asArray(data as ApiProduct[] | null | undefined);
     let filtered = qParam
       ? raw.filter((p) => {
           const hay = `${p.name} ${p.category} ${p.description ?? ''}`.toLowerCase();
@@ -171,7 +172,7 @@ const Products = () => {
       </div>
 
       {/* Category Filter Bar */}
-      {categoriesData && categoriesData.length > 0 && (
+      {asArray(categoriesData).length > 0 && (
         <div className="mb-8">
           <h3 className="text-sm font-medium text-muted-foreground mb-3">Browse by Category</h3>
           <div className="flex flex-wrap gap-2">
@@ -180,9 +181,9 @@ const Products = () => {
               size="sm"
               onClick={() => setSelectedCategoryId(null)}
             >
-              All ({(data ?? []).length})
+              All ({asArray(data).length})
             </Button>
-            {categoriesData.map((cat) => (
+            {asArray(categoriesData).map((cat) => (
               <Button
                 key={cat.id}
                 variant={selectedCategoryId === cat.id ? "default" : "outline"}

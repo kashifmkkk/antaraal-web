@@ -22,6 +22,7 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { asArray } from "@/lib/utils";
 
 const Header = () => {
   const { user, logout, loading, token } = useAuth();
@@ -106,12 +107,12 @@ const Header = () => {
     staleTime: 15_000,
   });
 
-  const unreadSystemNotifs = (systemNotifications ?? [])
+  const unreadSystemNotifs = asArray(systemNotifications)
     .filter((n) => !n.isRead && !dismissedSystemNotifs.has(n.id))
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 10);
 
-  const recentNotifications = (products ?? [])
+  const recentNotifications = asArray(products)
     .filter((p) => !!p.updatedAt)
     .filter((p) => {
       // treat anything updated in last 7 days as a recent update

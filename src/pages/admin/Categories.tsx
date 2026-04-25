@@ -30,6 +30,7 @@ import {
 import { fetchJson, apiUrl } from "@/lib/api";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { asArray } from "@/lib/utils";
 import { Pencil, Trash2, Plus, Tag, FolderOpen, Package } from "lucide-react";
 
 type Category = {
@@ -256,9 +257,9 @@ const Categories = () => {
   };
 
   const filtered = useMemo(() => {
-    if (!categories) return [];
+    const categoryList = asArray(categories);
     const q = searchQ.toLowerCase();
-    return categories.filter(
+    return categoryList.filter(
       (cat) =>
         cat.name.toLowerCase().includes(q) ||
         cat.slug.toLowerCase().includes(q) ||
@@ -307,7 +308,7 @@ const Categories = () => {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {categories?.filter((c) => c.isActive).length ?? 0}
+                {asArray(categories).filter((c) => c.isActive).length}
               </p>
               <p className="text-sm text-muted-foreground">Active Categories</p>
             </div>

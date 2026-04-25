@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth, AuthUser } from "@/context/AuthContext";
+import { apiUrl } from "@/lib/api";
 
 export function SignupComponent() {
   const { toast } = useToast();
@@ -17,8 +18,7 @@ export function SignupComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const base = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
-      const res = await fetch(`${base}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: email.split('@')[0], email, password }) });
+      const res = await fetch(apiUrl('/api/auth/register'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: email.split('@')[0], email, password }) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         const message = typeof json === 'object' && json && 'error' in json ? (json as { error?: string }).error : null;

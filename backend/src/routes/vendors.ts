@@ -6,6 +6,17 @@ export default function vendorsRouter(prisma: PrismaClient) {
   const router = Router();
   const Role = $Enums.Role;
 
+  const mapVendor = (vendor: any) => ({
+    ...vendor,
+    certifications: (() => {
+      try {
+        return typeof vendor.certifications === 'string' ? JSON.parse(vendor.certifications) : (vendor.certifications ?? []);
+      } catch {
+        return [];
+      }
+    })(),
+  });
+
   router.get('/', requireRole(Role.ADMIN, Role.BUYER, Role.VENDOR), async (req, res) => {
     const auth = req.auth;
     if (!auth) {
@@ -17,11 +28,11 @@ export default function vendorsRouter(prisma: PrismaClient) {
         return res.json([]);
       }
       const vendor = await prisma.vendor.findUnique({ where: { id: auth.vendorId } });
-      return res.json(vendor ? [vendor] : []);
+      return res.json(vendor ? [mapVendor(vendor)] : []);
     }
 
     const vendors = await prisma.vendor.findMany({ orderBy: { id: 'asc' } });
-    res.json(vendors);
+    res.json(vendors.map(mapVendor));
   });
 
   router.get('/:id', requireRole(Role.ADMIN, Role.BUYER, Role.VENDOR), async (req, res) => {
@@ -44,7 +55,7 @@ export default function vendorsRouter(prisma: PrismaClient) {
       return res.status(404).json({ error: 'not found' });
     }
 
-    res.json(vendor);
+    res.json(mapVendor(vendor));
   });
 
   return router;

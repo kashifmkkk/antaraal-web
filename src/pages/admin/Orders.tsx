@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Package, Eye } from "lucide-react";
+import { asArray } from "@/lib/utils";
 
 type Order = {
   id: number;
@@ -149,12 +150,12 @@ const Orders = () => {
   };
 
   const stats = useMemo(() => {
-    if (!data) return { total: 0, pending: 0, completed: 0, revenue: 0 };
+    const orders = asArray(data);
     return {
-      total: data.length,
-      pending: data.filter((o) => o.status === "Pending" || o.status === "Processing").length,
-      completed: data.filter((o) => o.status === "Delivered").length,
-      revenue: data.reduce((sum, o) => sum + o.totalAmount, 0),
+      total: orders.length,
+      pending: orders.filter((o) => o.status === "Pending" || o.status === "Processing").length,
+      completed: orders.filter((o) => o.status === "Delivered").length,
+      revenue: orders.reduce((sum, o) => sum + o.totalAmount, 0),
     };
   }, [data]);
 

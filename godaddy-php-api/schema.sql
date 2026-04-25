@@ -1,0 +1,237 @@
+SET NAMES utf8mb4;
+SET time_zone = '+00:00';
+
+CREATE TABLE IF NOT EXISTS categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  slug VARCHAR(255) NOT NULL UNIQUE,
+  description TEXT NULL,
+  product_count INT NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS vendors (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  location VARCHAR(255) NULL,
+  rating DECIMAL(4,2) NULL,
+  specialty VARCHAR(255) NULL,
+  image VARCHAR(512) NULL,
+  verification_status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  certifications LONGTEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(20) NOT NULL DEFAULT 'BUYER',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  last_active_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  vendor_id INT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_users_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  category VARCHAR(255) NULL,
+  category_id INT NULL,
+  image VARCHAR(512) NOT NULL,
+  photos LONGTEXT NOT NULL,
+  description LONGTEXT NULL,
+  reference_code VARCHAR(255) NULL UNIQUE,
+  vendor VARCHAR(255) NULL,
+  price VARCHAR(100) NULL,
+  availability VARCHAR(100) NOT NULL DEFAULT 'On Request',
+  warranty VARCHAR(255) NULL,
+  warranty_status VARCHAR(50) NOT NULL DEFAULT 'Active',
+  rating DECIMAL(4,2) NULL,
+  review_count INT NOT NULL DEFAULT 0,
+  status VARCHAR(50) NOT NULL DEFAULT 'available',
+  warranty_expiry DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS rfqs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  company VARCHAR(255) NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(100) NULL,
+  part_number VARCHAR(255) NULL,
+  message TEXT NULL,
+  file_url VARCHAR(512) NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'New',
+  assigned_vendor_id INT NULL,
+  internal_notes TEXT NULL,
+  buyer_id INT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_rfqs_vendor FOREIGN KEY (assigned_vendor_id) REFERENCES vendors(id) ON DELETE SET NULL,
+  CONSTRAINT fk_rfqs_buyer FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS quotes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  rfq_id INT NOT NULL,
+  user_id INT NULL,
+  vendor_id INT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+  status VARCHAR(50) NOT NULL DEFAULT 'Draft',
+  comments TEXT NULL,
+  issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  valid_until DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_quotes_rfq FOREIGN KEY (rfq_id) REFERENCES rfqs(id) ON DELETE CASCADE,
+  CONSTRAINT fk_quotes_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  CONSTRAINT fk_quotes_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS complaints (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  subject VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'New',
+  product_id INT NOT NULL,
+  vendor_id INT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_complaints_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  CONSTRAINT fk_complaints_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS warranty_records (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  vendor_id INT NULL,
+  tail_number VARCHAR(100) NULL,
+  expiry_date DATETIME NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'Active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_warranty_records_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  CONSTRAINT fk_warranty_records_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mro_orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tail_number VARCHAR(100) NOT NULL,
+  provider VARCHAR(255) NOT NULL,
+  service_type VARCHAR(255) NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'Scheduled',
+  estimated_tat_days INT NOT NULL,
+  start_date DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS admin_settings (
+  id INT PRIMARY KEY,
+  notification_email VARCHAR(255) NOT NULL DEFAULT 'ops@skyway.aero',
+  rfq_auto_assign TINYINT(1) NOT NULL DEFAULT 0,
+  daily_digest TINYINT(1) NOT NULL DEFAULT 0,
+  compliance_notes LONGTEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO admin_settings (id, notification_email, rfq_auto_assign, daily_digest, compliance_notes)
+VALUES (1, 'ops@skyway.aero', 0, 0, '')
+ON DUPLICATE KEY UPDATE id = id;
+
+CREATE TABLE IF NOT EXISTS cart (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_cart_user_product (user_id, product_id),
+  CONSTRAINT fk_cart_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  order_number VARCHAR(255) NOT NULL UNIQUE,
+  total_amount DECIMAL(12,2) NOT NULL,
+  currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+  status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+  shipping_address TEXT NULL,
+  billing_address TEXT NULL,
+  payment_method VARCHAR(100) NULL,
+  payment_status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+  tracking_number VARCHAR(255) NULL,
+  shipping_carrier VARCHAR(255) NULL,
+  shipped_at DATETIME NULL,
+  delivered_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT NOT NULL,
+  price DECIMAL(12,2) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS warranty_claims (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  record_id INT NULL,
+  subject VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+  response TEXT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_warranty_claims_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_warranty_claims_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  CONSTRAINT fk_warranty_claims_record FOREIGN KEY (record_id) REFERENCES warranty_records(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  body TEXT NULL,
+  user_id INT NULL,
+  vendor_id INT NULL,
+  product_id INT NULL,
+  is_read TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_notifications_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE,
+  CONSTRAINT fk_notifications_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS reviews (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  user_id INT NULL,
+  user_name VARCHAR(255) NOT NULL,
+  rating INT NOT NULL,
+  comment TEXT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_reviews_product_id (product_id),
+  KEY idx_reviews_status (status),
+  CONSTRAINT fk_reviews_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

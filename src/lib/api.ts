@@ -74,10 +74,20 @@ const baseUrl = normalizeBase(import.meta.env.VITE_API_BASE as string | undefine
 export const apiBase = baseUrl;
 
 export function apiUrl(path: string) {
-  if (!path.startsWith("/")) {
-    return `${baseUrl}/${path}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  if (baseUrl.endsWith("/api") && normalizedPath === "/api") {
+    return baseUrl;
   }
-  return `${baseUrl}${path}`;
+
+  if (baseUrl.endsWith("/api") && normalizedPath.startsWith("/api/")) {
+    return `${baseUrl}${normalizedPath.slice(4)}`;
+  }
+
+  if (!normalizedPath.startsWith("/")) {
+    return `${baseUrl}/${normalizedPath}`;
+  }
+  return `${baseUrl}${normalizedPath}`;
 }
 
 export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {

@@ -19,6 +19,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { asArray } from "@/lib/utils";
 
 const availabilityOptions = ["Available", "On Request", "Reserved"] as const;
 const warrantyStatuses = ["Active", "Expiring", "Expired"] as const;
@@ -573,7 +574,7 @@ const Inventory = () => {
                 <Button
                   type="button"
                   onClick={() => {
-                    const copy = formState.photos ? [...formState.photos.filter(Boolean)] : [];
+                    const copy = asArray(formState.photos).filter(Boolean);
                     const last = (copy[copy.length - 1] || "").trim();
                     if (last.length === 0) {
                       // if last is empty, don't add duplicate
@@ -588,7 +589,7 @@ const Inventory = () => {
               </div>
               <div className="mt-2 overflow-x-auto py-2">
                 <div className="flex gap-2">
-                  {(formState.photos ?? []).filter(Boolean).map((url, idx) => (
+                  {asArray(formState.photos).filter(Boolean).map((url, idx) => (
                     <div key={idx} className="relative w-28 h-20 flex-shrink-0">
                       <img src={resolveImageSrc(url)} alt={`photo-${idx}`} className="w-full h-full object-cover rounded" />
                       <button
@@ -604,7 +605,7 @@ const Inventory = () => {
                       </button>
                     </div>
                   ))}
-                  {(formState.photos ?? []).filter(Boolean).length === 0 && (
+                  {asArray(formState.photos).filter(Boolean).length === 0 && (
                     <div className="text-sm text-muted-foreground">No photos yet. Add image URLs above.</div>
                   )}
                 </div>

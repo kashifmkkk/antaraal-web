@@ -15,6 +15,7 @@ import engineBlade from "@/assets/engine-blade.jpg";
 import hydraulicPump from "@/assets/hydraulic-pump.jpg";
 import landingGear from "@/assets/landing-gear.jpg";
 import avionicsUnit from "@/assets/avionics-unit.jpg";
+import { asArray } from "@/lib/utils";
 
 const imageMap: Record<string, string> = {
   "/engine-blade.jpg": engineBlade,
@@ -78,7 +79,7 @@ const ProductDetails = () => {
     const availability = data.availability && data.availability.length > 0 ? data.availability : "On request";
     const warranty = data.warranty && data.warranty.length > 0 ? data.warranty : "Warranty provided with contract";
     const warrantyExpiry = data.warrantyExpiry ? new Date(data.warrantyExpiry).toLocaleDateString() : "Shared during onboarding";
-    const photos = (data.photos ?? []).filter(Boolean);
+    const photos = asArray(data.photos).filter(Boolean);
     const resolveImageSrc = (url?: string) => {
       if (!url) return engineBlade;
       if (/^https?:\/\//i.test(url)) return url;

@@ -31,7 +31,13 @@ export default function adminInventoryRouter(prisma: PrismaClient) {
     warrantyStatus: product.warrantyStatus ?? 'Active',
     warranty: product.warranty ?? 'Standard',
     image: product.image ?? '/placeholder.svg',
-    photos: product.photos ?? [],
+    photos: (() => {
+      try {
+        return typeof product.photos === 'string' ? JSON.parse(product.photos) : (product.photos ?? []);
+      } catch {
+        return [];
+      }
+    })(),
     price: product.price ?? null,
     description: product.description ?? null,
     createdAt: product.createdAt,
@@ -80,7 +86,7 @@ export default function adminInventoryRouter(prisma: PrismaClient) {
           if (pics.length > 0) return pics[pics.length - 1];
           return image ?? '/placeholder.svg';
         })(),
-        photos: (photos ?? []).filter(Boolean),
+        photos: JSON.stringify((photos ?? []).filter(Boolean)),
         description: description ?? null,
         price: price ?? null,
         status: status ?? 'available',
@@ -135,7 +141,7 @@ export default function adminInventoryRouter(prisma: PrismaClient) {
         ...(warrantyStatus ? { warrantyStatus } : {}),
         // if photos provided prefer last non-empty photo as image
         ...((photos && (photos as string[]).filter(Boolean).length > 0)
-          ? { image: (photos as string[]).filter(Boolean).slice(-1)[0], photos: (photos as string[]).filter(Boolean) }
+          ? { image: (photos as string[]).filter(Boolean).slice(-1)[0], photos: JSON.stringify((photos as string[]).filter(Boolean)) }
           : {}),
         ...(image ? { image } : {}),
         ...(description !== undefined ? { description } : {}),

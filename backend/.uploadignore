@@ -1,0 +1,59 @@
+# GoDaddy Upload Exclusions
+# DO NOT upload these files/folders to stay under 100MB limit
+
+# Dependencies (installed via npm install on server)
+node_modules/
+
+# Build output (created via npm run build on server or upload after building)
+# NOTE: For GoDaddy, you SHOULD upload dist/ if you build locally
+# dist/
+
+# Environment files (create on server)
+.env
+.env.*
+
+# Git files
+.git/
+.gitignore
+
+# Development files
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+*.test.ts
+*.test.js
+__tests__/
+
+# Documentation (optional)
+*.md
+docs/
+
+# Docker files (not needed for GoDaddy)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.cache
+
+# Upload artifacts (not needed on server initially)
+uploads/*
+
+# Migration history (can be recreated)
+prisma/migrations/
+
+# Scripts for local development
+scripts/delete-user.ts

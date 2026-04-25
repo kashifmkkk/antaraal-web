@@ -67,7 +67,7 @@ app.post('/api/vendors/register', async (req, res) => {
     if (existingVendor) return res.status(400).json({ error: 'vendor exists' });
 
     const hash = await bcrypt.hash(password, 10);
-    const vendor = await prisma.vendor.create({ data: { name: vendorName, location, specialty, certifications: certifications ?? [] } });
+    const vendor = await prisma.vendor.create({ data: { name: vendorName, location, specialty, certifications: JSON.stringify(certifications ?? []) } });
     const user = await prisma.user.create({ data: { name, email, passwordHash: hash, role: Role.VENDOR, vendorId: vendor.id } });
 
     const token = jwt.sign({ userId: user.id, role: user.role, vendorId: vendor.id }, JWT_SECRET, { expiresIn: '7d' });

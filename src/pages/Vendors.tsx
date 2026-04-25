@@ -9,6 +9,7 @@ import CreateQuoteModal from "@/components/CreateQuoteModal";
 import { Building2, MapPin, Star } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import LoadingLogo from "@/components/LoadingLogo";
+import { asArray } from "@/lib/utils";
 
 type Vendor = {
   id: number;
@@ -29,7 +30,7 @@ const Vendors = () => {
     queryFn: () => fetchJson<Vendor[]>("/api/vendors"),
     staleTime: 30_000,
   });
-  const vendors = data ?? [];
+  const vendors = asArray(data);
 
   return (
     <div className="container mx-auto px-4 py-12">

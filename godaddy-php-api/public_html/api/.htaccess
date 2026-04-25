@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# Database Configuration
+SetEnv DB_HOST localhost
+SetEnv DB_PORT 3306
+SetEnv DB_NAME antaraal_db
+SetEnv DB_USER antaraal_user
+SetEnv DB_PASS oml]7a8FNSktNZ*)
+
+# Security
+SetEnv JWT_SECRET antaraal_super_secure_key_2026_!@#_random
+
+# CORS - Allow frontend domain
+SetEnv FRONTEND_ORIGIN https://antaraalspace.com
+
+# Front controller
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

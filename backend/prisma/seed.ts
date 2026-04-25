@@ -574,9 +574,12 @@ async function main() {
           image: seed.image,
           verificationStatus: seed.verificationStatus,
           isActive: seed.isActive,
-          certifications: seed.certifications ?? [],
+          certifications: JSON.stringify(seed.certifications ?? []),
         },
-        create: seed,
+        create: {
+          ...seed,
+          certifications: JSON.stringify(seed.certifications ?? []),
+        },
       }),
     ),
   );
