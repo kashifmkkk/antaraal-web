@@ -29,8 +29,8 @@ export default function CreateQuoteModal({ isOpen, onClose, defaultRfqId, onCrea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (!rfqId || Number.isNaN(Number(rfqId))) {
-        toast({ title: 'Invalid RFQ', description: 'Please provide a valid RFQ ID.' });
+      if (rfqId && Number.isNaN(Number(rfqId))) {
+        toast({ title: 'Invalid RFQ', description: 'If provided, RFQ ID must be a valid number.' });
         return;
       }
       if (!amount || Number.isNaN(Number(amount))) {
@@ -40,7 +40,7 @@ export default function CreateQuoteModal({ isOpen, onClose, defaultRfqId, onCrea
       await fetchJson('/api/quotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rfqId: Number(rfqId), amount: Number(amount), comments }),
+        body: JSON.stringify({ rfqId: rfqId ? Number(rfqId) : undefined, amount: Number(amount), comments }),
       });
       toast({ title: 'Quote created' });
       setAmount('');
@@ -62,8 +62,8 @@ export default function CreateQuoteModal({ isOpen, onClose, defaultRfqId, onCrea
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="rfqId">RFQ ID</Label>
-              <Input id="rfqId" value={rfqId} onChange={(e) => setRfqId(e.target.value)} required />
+              <Label htmlFor="rfqId">RFQ ID (optional)</Label>
+              <Input id="rfqId" value={rfqId} onChange={(e) => setRfqId(e.target.value)} placeholder="Leave blank if not tied to an RFQ" />
             </div>
             <div>
               <Label htmlFor="amount">Amount</Label>
@@ -75,7 +75,7 @@ export default function CreateQuoteModal({ isOpen, onClose, defaultRfqId, onCrea
             <Textarea id="comments" value={comments} onChange={(e) => setComments(e.target.value)} rows={4} />
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
             <Button type="submit">Create</Button>
           </div>
         </form>

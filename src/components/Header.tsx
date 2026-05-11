@@ -191,6 +191,12 @@ const Header = () => {
                       <Link to="/rfq">RFQ</Link>
                     </Button>
                   )}
+                  <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileOpen(false)}>
+                    <Link to="/product-launch">Launch</Link>
+                  </Button>
+                  <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileOpen(false)}>
+                    <Link to="/pricing">Pricing</Link>
+                  </Button>
                   {(isAdmin || isVendor) && (
                     <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileOpen(false)}>
                       <Link to="/quotes">Quotes</Link>
@@ -268,6 +274,12 @@ const Header = () => {
                 <Link to="/rfq">RFQ</Link>
               </Button>
             )}
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/product-launch">Launch</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/pricing">Pricing</Link>
+            </Button>
             {(isAdmin || isVendor) && (
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/quotes">Quotes</Link>

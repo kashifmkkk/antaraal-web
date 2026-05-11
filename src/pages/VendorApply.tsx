@@ -18,7 +18,7 @@ export default function VendorApply() {
   const { toast } = useToast();
   const { setSession } = useAuth();
   const navigate = useNavigate();
-  const [useApi, setUseApi] = useState(false);
+  const [useApi, setUseApi] = useState(true);
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);

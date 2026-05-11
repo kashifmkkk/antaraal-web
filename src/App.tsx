@@ -21,6 +21,8 @@ import VendorDetails from "./pages/VendorDetails";
 import VendorProfile from "./pages/VendorProfile";
 import VendorApply from "./pages/VendorApply";
 import SubmitProduct from "./pages/SubmitProduct";
+import ProductLaunch from "./components/ProductLaunch";
+import PricingRangesPage from "./pages/PricingRanges";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminRoute from "./components/admin/AdminRoute";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -43,6 +45,7 @@ import {
   AdminWarrantyClaims,
   AdminNotifications,
   AdminReviews,
+  AdminPricingRanges,
 } from "./pages/admin";
 
 const queryClient = new QueryClient();
@@ -78,6 +81,8 @@ const App = () => (
                 <Route path="/vendor/apply" element={<VendorApply />} />
                 <Route path="/products/:id" element={<ProductDetails />} />
                 <Route path="/overhaul-services" element={<OverhaulServices />} />
+                <Route path="/product-launch" element={<ProductLaunch />} />
+                <Route path="/pricing" element={<PricingRangesPage />} />
                 <Route
                   path="/rfq"
                   element={
@@ -120,6 +125,7 @@ const App = () => (
                   <Route path="vendors" element={<AdminVendors />} />
                   <Route path="rfqs" element={<AdminRFQs />} />
                   <Route path="quotes" element={<AdminQuotes />} />
+                  <Route path="pricing-ranges" element={<AdminPricingRanges />} />
                   <Route path="mro" element={<AdminMRO />} />
                   <Route path="warranty" element={<AdminWarranty />} />
                   <Route path="orders" element={<AdminOrders />} />

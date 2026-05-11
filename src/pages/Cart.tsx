@@ -166,10 +166,10 @@ const Cart = () => {
   };
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto px-4 py-6 sm:py-10">
       <div className="flex items-center gap-3 mb-6">
         <ShoppingCart className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold">Shopping Cart</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Shopping Cart</h1>
       </div>
 
       {loading || isLoading ? (
@@ -188,31 +188,32 @@ const Cart = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid gap-6 md:grid-cols-3">
               <div className="md:col-span-2 space-y-4">
                 {cartItems.map((item) => (
                   <Card key={item.id}>
-                    <CardContent className="p-6">
-                      <div className="flex gap-4">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col gap-4 sm:flex-row">
                         <img
                           src={resolveImageSrc(item.product.image)}
                           alt={item.product.name}
-                          className="w-24 h-24 object-cover rounded"
+                          className="h-24 w-full rounded object-cover sm:w-24"
                         />
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{item.product.name}</h3>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-base sm:text-lg">{item.product.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             {item.product.availability}
                           </p>
-                          <p className="text-lg font-bold mt-2">
+                          <p className="text-base sm:text-lg font-bold mt-2">
                             ₹{parseFloat(item.product.price || "0").toLocaleString()}
                           </p>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
+                        <div className="flex flex-row items-center justify-between gap-3 sm:flex-col sm:items-end">
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => removeItemMutation.mutate(item.id)}
+                            className="shrink-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -230,7 +231,7 @@ const Cart = () => {
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
-                            <span className="w-12 text-center font-medium">{item.quantity}</span>
+                            <span className="w-10 sm:w-12 text-center font-medium">{item.quantity}</span>
                             <Button
                               variant="outline"
                               size="icon"
@@ -252,7 +253,7 @@ const Cart = () => {
               </div>
 
               <div>
-                <Card className="sticky top-4">
+                <Card className="md:sticky md:top-4">
                   <CardHeader>
                     <CardTitle>Order Summary</CardTitle>
                   </CardHeader>
@@ -271,11 +272,7 @@ const Cart = () => {
                         <span>₹{(totalAmount * 1.18).toLocaleString()}</span>
                       </div>
                     </div>
-                    <Button
-                      className="w-full"
-                      size="lg"
-                      onClick={() => setCheckoutOpen(true)}
-                    >
+                    <Button className="w-full" size="lg" onClick={() => setCheckoutOpen(true)}>
                       Proceed to Checkout
                     </Button>
                     <Button
@@ -299,7 +296,7 @@ const Cart = () => {
       )}
 
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[calc(100vw-1rem)] sm:w-full">
           <DialogHeader>
             <DialogTitle>Checkout</DialogTitle>
             <DialogDescription>

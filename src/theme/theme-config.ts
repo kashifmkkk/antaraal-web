@@ -1,4 +1,11 @@
-export type ThemeName = "dark-aviation" | "light-enterprise" | "defense-green" | "high-contrast";
+export type ThemeName =
+  | "dark-aviation"
+  | "light-enterprise"
+  | "defense-green"
+  | "sunset-meridian"
+  | "obsidian-luxe"
+  | "studio-matte"
+  | "neon-atlas";
 
 export type ThemeOption = {
   name: ThemeName;
@@ -30,9 +37,27 @@ export const THEME_OPTIONS: ThemeOption[] = [
     colorScheme: "dark",
   },
   {
-    name: "high-contrast",
-    label: "High Contrast",
-    description: "Accessibility-first, WCAG compliant palette",
+    name: "sunset-meridian",
+    label: "Sunset Meridian",
+    description: "Aesthetic dusk ambiance with copper and cyan glow",
+    colorScheme: "dark",
+  },
+  {
+    name: "obsidian-luxe",
+    label: "Obsidian Luxe",
+    description: "Premium glossy black with champagne highlights",
+    colorScheme: "dark",
+  },
+  {
+    name: "studio-matte",
+    label: "Studio Matte",
+    description: "Minimal matte canvas with calm graphite accents",
+    colorScheme: "light",
+  },
+  {
+    name: "neon-atlas",
+    label: "Neon Atlas",
+    description: "Saturated neon cockpit with electric cyan and magenta",
     colorScheme: "dark",
   },
 ];

@@ -64,6 +64,8 @@ const AccountPage = () => {
     description: "",
   });
 
+  const tabListClassName = "grid w-full grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-0 overflow-x-auto";
+
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) setActiveTab(tab);
@@ -113,10 +115,10 @@ const AccountPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto px-4 py-6 sm:py-10">
       <div className="flex items-center gap-3 mb-6">
         <User className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold">My Account</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">My Account</h1>
       </div>
 
       {loading ? (
@@ -126,7 +128,7 @@ const AccountPage = () => {
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={tabListClassName}>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="warranties">Warranties</TabsTrigger>
@@ -140,7 +142,7 @@ const AccountPage = () => {
                 <CardDescription>Manage your account details</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <p className="text-sm text-muted-foreground">Name</p>
                     <p className="text-lg font-medium">{user?.name}</p>
@@ -193,7 +195,47 @@ const AccountPage = () => {
                 ) : !orders || orders.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">No orders yet</p>
                 ) : (
-                  <Table>
+                  <>
+                    <div className="space-y-3 md:hidden">
+                      {orders.map((order) => (
+                        <Card key={order.id} className="p-4">
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="font-mono text-xs">{order.orderNumber}</span>
+                              <Badge variant="outline">{order.status}</Badge>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Date</span>
+                              <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Items</span>
+                              <span>{order.items?.length || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Total</span>
+                              <span>₹{order.totalAmount.toLocaleString()}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Payment</span>
+                              <Badge
+                                variant={
+                                  order.paymentStatus === "Paid"
+                                    ? "default"
+                                    : order.paymentStatus === "Pending"
+                                    ? "secondary"
+                                    : "destructive"
+                                }
+                              >
+                                {order.paymentStatus}
+                              </Badge>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                    <div className="hidden md:block">
+                      <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Order #</TableHead>
@@ -230,7 +272,9 @@ const AccountPage = () => {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                      </Table>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -255,7 +299,43 @@ const AccountPage = () => {
                 ) : !warranties || warranties.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">No warranties found</p>
                 ) : (
-                  <Table>
+                  <>
+                    <div className="space-y-3 md:hidden">
+                      {warranties.map((warranty) => (
+                        <Card key={warranty.id} className="p-4">
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="font-medium">{warranty.productName}</span>
+                              <Badge
+                                variant={
+                                  warranty.status === "Active"
+                                    ? "default"
+                                    : warranty.status === "Expiring"
+                                    ? "secondary"
+                                    : "destructive"
+                                }
+                              >
+                                {warranty.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Vendor</span>
+                              <span className="text-right">{warranty.vendor}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Tail Number</span>
+                              <span>{warranty.tailNumber || "—"}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Expiry</span>
+                              <span>{new Date(warranty.expiryDate).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                    <div className="hidden md:block">
+                      <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Product</TableHead>
@@ -288,7 +368,9 @@ const AccountPage = () => {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                      </Table>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -297,7 +379,7 @@ const AccountPage = () => {
           <TabsContent value="claims">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <FileText className="h-5 w-5" />
@@ -305,7 +387,7 @@ const AccountPage = () => {
                     </CardTitle>
                     <CardDescription>Submit and track warranty claims</CardDescription>
                   </div>
-                  <Button onClick={() => setClaimDialogOpen(true)}>New Claim</Button>
+                  <Button className="w-full sm:w-auto" onClick={() => setClaimDialogOpen(true)}>New Claim</Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -314,7 +396,43 @@ const AccountPage = () => {
                 ) : !claims || claims.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">No warranty claims yet</p>
                 ) : (
-                  <Table>
+                  <>
+                    <div className="space-y-3 md:hidden">
+                      {claims.map((claim) => (
+                        <Card key={claim.id} className="p-4">
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="font-medium">{claim.subject}</span>
+                              <Badge
+                                variant={
+                                  claim.status === "Approved"
+                                    ? "default"
+                                    : claim.status === "Pending"
+                                    ? "secondary"
+                                    : "destructive"
+                                }
+                              >
+                                {claim.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Product</span>
+                              <span>#{claim.productId}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">Date</span>
+                              <span>{new Date(claim.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <div className="text-muted-foreground">
+                              <span className="block text-xs uppercase tracking-wide mb-1">Response</span>
+                              <span className="text-sm">{claim.response || "—"}</span>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                    <div className="hidden md:block">
+                      <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Subject</TableHead>
@@ -349,7 +467,9 @@ const AccountPage = () => {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                      </Table>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -358,7 +478,7 @@ const AccountPage = () => {
       )}
 
       <Dialog open={claimDialogOpen} onOpenChange={setClaimDialogOpen}>
-        <DialogContent>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg sm:w-full">
           <DialogHeader>
             <DialogTitle>Submit Warranty Claim</DialogTitle>
             <DialogDescription>

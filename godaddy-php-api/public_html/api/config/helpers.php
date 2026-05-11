@@ -28,6 +28,14 @@ function api_json_decode_array(?string $value): array
     return is_array($decoded) ? $decoded : [];
 }
 
+function api_slugify(string $value): string
+{
+    $value = strtolower(trim($value));
+    $value = preg_replace('/[^a-z0-9\s-]/', '', $value) ?? '';
+    $value = preg_replace('/[\s-]+/', '-', $value) ?? '';
+    return trim($value, '-');
+}
+
 function api_query_all(PDO $pdo, string $sql, array $params = []): array
 {
     $statement = $pdo->prepare($sql);

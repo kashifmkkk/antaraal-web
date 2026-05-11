@@ -35,6 +35,7 @@ type ApiProduct = {
   vendor?: string | null;
   availability?: string | null;
   warranty?: string | null;
+  price?: string | number | null;
   rating?: number | null;
   reviewCount?: number | null;
   status?: string | null;
@@ -163,7 +164,7 @@ const Products = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-6 sm:py-12">
       <div className="max-w-3xl mb-8 sm:mb-12 space-y-3">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">Aerospace Parts Catalog</h1>
         <p className="text-muted-foreground text-sm sm:text-lg">
@@ -175,10 +176,11 @@ const Products = () => {
       {asArray(categoriesData).length > 0 && (
         <div className="mb-8">
           <h3 className="text-sm font-medium text-muted-foreground mb-3">Browse by Category</h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible">
             <Button
               variant={selectedCategoryId === null ? "default" : "outline"}
               size="sm"
+              className="shrink-0 whitespace-nowrap"
               onClick={() => setSelectedCategoryId(null)}
             >
               All ({asArray(data).length})
@@ -188,6 +190,7 @@ const Products = () => {
                 key={cat.id}
                 variant={selectedCategoryId === cat.id ? "default" : "outline"}
                 size="sm"
+                className="shrink-0 whitespace-nowrap"
                 onClick={() => setSelectedCategoryId(cat.id)}
               >
                 {cat.name} ({cat._count?.products ?? cat.productCount})
@@ -205,7 +208,7 @@ const Products = () => {
       )}
 
       {!isLoading && !isError && products.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+        <div className="stagger-cards grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {products.map((product) => (
             <Card
               key={product.id}
@@ -246,21 +249,22 @@ const Products = () => {
                 <div className="rounded-lg border border-dashed border-primary/30 px-3 py-2 text-xs text-muted-foreground">
                   Warranty: <span className="text-foreground font-medium">{product.warranty}</span>
                 </div>
-                {product.price && (
-                  <p className="text-lg font-bold mt-2">₹{parseFloat(product.price).toLocaleString()}</p>
+                {product.price !== null && product.price !== undefined && product.price !== "" && (
+                  <p className="text-lg font-bold mt-2">₹{Number(product.price).toLocaleString()}</p>
                 )}
-                <div className="flex gap-2 pt-2">
+                <div className="flex flex-col gap-2 pt-2 sm:flex-row">
                   {user && (
                     <Button
                       variant="secondary"
                       size="sm"
+                      className="w-full sm:w-auto"
                       onClick={(e) => { e.stopPropagation(); addToCartMutation.mutate(product.id); }}
                       disabled={addToCartMutation.isPending}
                     >
                       <ShoppingCart className="h-4 w-4" />
                     </Button>
                   )}
-                  <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); openQuote(product); }}>
+                  <Button className="w-full sm:w-auto" variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); openQuote(product); }}>
                     RFQ
                   </Button>
                 </div>
