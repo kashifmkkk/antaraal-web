@@ -10,6 +10,7 @@ import { fetchJson } from '@/lib/api';
 export default function SubmitProduct() {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
+  const [price, setPrice] = useState('');
   const [image, setImage] = useState('');
   const [description, setDescription] = useState('');
   const { toast } = useToast();
@@ -23,7 +24,13 @@ export default function SubmitProduct() {
     try {
       const res = await fetchJson('/api/products', {
         method: 'POST',
-        body: JSON.stringify({ name, category, image, description }),
+        body: JSON.stringify({ 
+          name, 
+          category, 
+          price: price ? parseFloat(price) : null,
+          image, 
+          description 
+        }),
       });
       toast({ title: 'Product submitted', description: 'Awaiting admin approval' });
       navigate('/vendor/profile');
@@ -47,9 +54,22 @@ export default function SubmitProduct() {
                 <Label>Product name</Label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
-              <div>
-                <Label>Category</Label>
-                <Input value={category} onChange={(e) => setCategory(e.target.value)} required />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Category</Label>
+                  <Input value={category} onChange={(e) => setCategory(e.target.value)} required />
+                </div>
+                <div>
+                  <Label>Price (₹)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    min="0"
+                    value={price} 
+                    onChange={(e) => setPrice(e.target.value)} 
+                    placeholder="e.g. 50000" 
+                  />
+                </div>
               </div>
               <div>
                 <Label>Image URL</Label>

@@ -15,4 +15,5 @@ export { default as AdminWarrantyClaims } from "./WarrantyClaims";
 export { default as AdminNotifications } from "./Notifications";
 export { default as AdminReviews } from "./Reviews";
 export { default as AdminPricingRanges } from "./PricingRanges";
+export { default as ApproveProducts } from "./ApproveProducts";
 

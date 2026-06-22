@@ -515,12 +515,12 @@ function api_resource_route(PDO $pdo, string $resource, array $segments = []): v
                 api_json(['buyers' => $buyers, 'sellers' => $sellers]);
 
             case 'rfqs':
-                $sql = 'SELECT id, user_id AS userId, product_id AS productId, quantity, budget, specification, status, created_at AS createdAt, updated_at AS updatedAt
-                        FROM rfqs';
+                $sql = 'SELECT id, buyer_id AS buyerId, name, company, email, phone, part_number AS partNumber, message, file_url AS fileUrl, assigned_vendor_id AS assignedVendorId, status, created_at AS createdAt, updated_at AS updatedAt
+                    FROM rfqs';
                 $params = [];
 
                 if ($id !== null) {
-                    $sql = 'SELECT id, user_id AS userId, product_id AS productId, quantity, budget, specification, status, created_at AS createdAt, updated_at AS updatedAt
+                        $sql = 'SELECT id, buyer_id AS buyerId, name, company, email, phone, part_number AS partNumber, message, file_url AS fileUrl, assigned_vendor_id AS assignedVendorId, status, created_at AS createdAt, updated_at AS updatedAt
                             FROM rfqs WHERE id = :id LIMIT 1';
                     $params = ['id' => $id];
 
@@ -529,19 +529,21 @@ function api_resource_route(PDO $pdo, string $resource, array $segments = []): v
                     if (!$row) {
                         api_json(['error' => 'not_found'], 404);
                     }
-                    $row['userId'] = (int) $row['userId'];
-                    $row['productId'] = (int) $row['productId'];
-                    $row['quantity'] = (int) $row['quantity'];
-                    $row['budget'] = (float) ($row['budget'] ?? 0);
+                    $row['buyerId'] = $row['buyerId'] !== null ? (int) $row['buyerId'] : null;
+                    $row['assignedVendorId'] = $row['assignedVendorId'] !== null ? (int) $row['assignedVendorId'] : null;
+                    $row['partNumber'] = $row['partNumber'] ?? null;
+                    $row['message'] = $row['message'] ?? null;
+                    $row['fileUrl'] = $row['fileUrl'] ?? null;
                     api_json($row);
                 }
 
                 $rfqs = api_query_all($pdo, $sql . ' ORDER BY created_at DESC', $params);
                 foreach ($rfqs as &$rfq) {
-                    $rfq['userId'] = (int) $rfq['userId'];
-                    $rfq['productId'] = (int) $rfq['productId'];
-                    $rfq['quantity'] = (int) $rfq['quantity'];
-                    $rfq['budget'] = (float) ($rfq['budget'] ?? 0);
+                    $rfq['buyerId'] = $rfq['buyerId'] !== null ? (int) $rfq['buyerId'] : null;
+                    $rfq['assignedVendorId'] = $rfq['assignedVendorId'] !== null ? (int) $rfq['assignedVendorId'] : null;
+                    $rfq['partNumber'] = $rfq['partNumber'] ?? null;
+                    $rfq['message'] = $rfq['message'] ?? null;
+                    $rfq['fileUrl'] = $rfq['fileUrl'] ?? null;
                 }
                 api_json($rfqs);
 
@@ -808,46 +810,46 @@ function api_resource_route(PDO $pdo, string $resource, array $segments = []): v
                 }
 
                 $input = api_input();
-                $productId = filter_var($input['productId'] ?? null, FILTER_VALIDATE_INT);
-                $quantity = filter_var($input['quantity'] ?? null, FILTER_VALIDATE_INT);
-                $specification = trim($input['specification'] ?? '');
-                $budget = filter_var($input['budget'] ?? null, FILTER_VALIDATE_FLOAT);
+                
+                // Accept RFQ form fields matching the RFQ model
+                $name = trim($input['name'] ?? '');
+                $company = trim($input['company'] ?? '');
+                $email = filter_var($input['email'] ?? '', FILTER_VALIDATE_EMAIL);
+                $phone = trim($input['phone'] ?? '');
+                $partNumber = trim($input['partNumber'] ?? $input['part_number'] ?? '');
+                $message = trim($input['message'] ?? $input['specification'] ?? '');
+                $fileUrl = trim($input['fileUrl'] ?? $input['file_url'] ?? '');
 
-                if ($productId === false || $quantity === false || $quantity < 1) {
-                    api_json(['error' => 'validation_error', 'message' => 'A valid productId and quantity are required.'], 400);
-                }
-
-                // Check if product exists
-                $productCheck = api_query_all($pdo, 'SELECT id FROM products WHERE id = :id LIMIT 1', ['id' => $productId]);
-                if (empty($productCheck)) {
-                    api_json(['error' => 'not_found', 'message' => 'The specified product does not exist.'], 404);
+                if (!$email || !$name) {
+                    api_json(['error' => 'validation_error', 'message' => 'name and email are required.'], 400);
                 }
 
                 try {
                     $stmt = $pdo->prepare(
-                        'INSERT INTO rfqs (user_id, product_id, quantity, specification, budget, status, created_at, updated_at)
-                         VALUES (:userId, :productId, :quantity, :specification, :budget, :status, NOW(), NOW())'
+                        'INSERT INTO rfqs (buyer_id, name, company, email, phone, part_number, message, file_url, status, created_at, updated_at)
+                         VALUES (:buyerId, :name, :company, :email, :phone, :partNumber, :message, :fileUrl, :status, NOW(), NOW())'
                     );
                     $stmt->execute([
-                        ':userId' => (int) $user['id'],
-                        ':productId' => $productId,
-                        ':quantity' => $quantity,
-                        ':specification' => $specification,
-                        ':budget' => $budget,
-                        ':status' => 'Pending',
+                        ':buyerId' => (int) $user['id'],
+                        ':name' => $name,
+                        ':company' => $company !== '' ? $company : null,
+                        ':email' => $email,
+                        ':phone' => $phone !== '' ? $phone : null,
+                        ':partNumber' => $partNumber !== '' ? $partNumber : null,
+                        ':message' => $message !== '' ? $message : null,
+                        ':fileUrl' => $fileUrl !== '' ? $fileUrl : null,
+                        ':status' => 'New',
                     ]);
 
                     $rfqId = (int) $pdo->lastInsertId();
 
                     // Fetch and return the new RFQ
-                    $newRfqResult = api_query_all($pdo, 'SELECT * FROM rfqs WHERE id = :id', ['id' => $rfqId]);
+                    $newRfqResult = api_query_all($pdo, 'SELECT id, buyer_id AS buyerId, name, company, email, phone, part_number AS partNumber, message, file_url AS fileUrl, assigned_vendor_id AS assignedVendorId, status, created_at AS createdAt, updated_at AS updatedAt FROM rfqs WHERE id = :id', ['id' => $rfqId]);
                     $newRfq = $newRfqResult[0] ?? null;
                     if ($newRfq) {
                         $newRfq['id'] = (int) $newRfq['id'];
-                        $newRfq['user_id'] = (int) $newRfq['user_id'];
-                        $newRfq['product_id'] = (int) $newRfq['product_id'];
-                        $newRfq['quantity'] = (int) $newRfq['quantity'];
-                        $newRfq['budget'] = $newRfq['budget'] !== null ? (float) $newRfq['budget'] : null;
+                        $newRfq['buyerId'] = $newRfq['buyerId'] !== null ? (int) $newRfq['buyerId'] : null;
+                        $newRfq['assignedVendorId'] = $newRfq['assignedVendorId'] !== null ? (int) $newRfq['assignedVendorId'] : null;
                     }
 
                     api_json($newRfq, 201);
@@ -1473,12 +1475,18 @@ function api_resource_route(PDO $pdo, string $resource, array $segments = []): v
                     api_json(['error' => 'not_found'], 404);
                 }
 
-                // Authorization: Allow admin or the product's vendor
+                $input = api_input();
+                
+                // Authorization: Admins can update any product, vendors can only update their own
                 if ($user['role'] !== 'ADMIN' && (int) $user['vendor_id'] !== (int) $product['vendor_id']) {
                     api_json(['error' => 'forbidden', 'message' => 'You do not have permission to update this product.'], 403);
                 }
+                
+                // Only admins can change status
+                if ($user['role'] !== 'ADMIN' && isset($input['status'])) {
+                    api_json(['error' => 'forbidden', 'message' => 'Only admins can change product status.'], 403);
+                }
 
-                $input = api_input();
                 $updates = [];
                 $params = ['id' => $id];
 
@@ -1512,7 +1520,11 @@ function api_resource_route(PDO $pdo, string $resource, array $segments = []): v
 
                     // Fetch and return updated product
                     $updatedProductResult = api_query_all($pdo, 'SELECT * FROM products WHERE id = :id', ['id' => $id]);
-                    api_json($updatedProductResult[0]);
+                    $updatedProduct = $updatedProductResult[0] ?? null;
+                    if ($updatedProduct) {
+                        $updatedProduct['photos'] = api_json_decode_array($updatedProduct['photos'] ?? null);
+                    }
+                    api_json($updatedProduct);
                 } catch (Exception $e) {
                     api_json(['error' => 'database_error', 'message' => 'Failed to update product: ' . $e->getMessage()], 500);
                 }

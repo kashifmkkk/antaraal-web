@@ -66,6 +66,8 @@ const productImages: Record<string, string> = {
 
 const statusBadge = (status: string) => {
   switch (status) {
+    case "pending":
+      return <Badge className="bg-yellow-600 text-white"><AlertTriangle className="mr-1 h-3 w-3" />Pending Approval</Badge>;
     case "available":
       return <Badge className="bg-success text-success-foreground"><CheckCircle2 className="mr-1 h-3 w-3" />Verified Stock</Badge>;
     case "limited":
@@ -86,11 +88,18 @@ const Products = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data: allProducts, isLoading, isError } = useQuery({
     queryKey: ["products", "catalog"],
     queryFn: () => fetchJson<ApiProduct[]>("/api/products"),
     staleTime: 30_000,
   });
+
+  // Filter out pending products for non-admin customers
+  const data = useMemo(() => {
+    if (!allProducts) return [];
+    if (user?.role === 'ADMIN') return allProducts; // Admins see all
+    return allProducts.filter(p => p.status !== 'pending'); // Customers see only approved
+  }, [allProducts, user?.role]);
 
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],

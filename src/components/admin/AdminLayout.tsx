@@ -27,6 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const navItems = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
   { label: "Inventory", to: "/admin/inventory", icon: Boxes },
+  { label: "Approve Products", to: "/admin/approve-products", icon: ShieldCheck },
   { label: "Categories", to: "/admin/categories", icon: FolderOpen },
   { label: "Vendors", to: "/admin/vendors", icon: Factory },
   { label: "RFQs", to: "/admin/rfqs", icon: ClipboardList },

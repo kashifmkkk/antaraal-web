@@ -28,15 +28,29 @@ const RFQ = () => {
 
     try {
       setSubmitting(true);
-      await fetchJson("/api/rfqs", {
+      const response = await fetchJson("/api/rfqs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       toast({ title: "RFQ submitted", description: "Our vendor relations desk will respond shortly." });
-      event.currentTarget.reset();
+      // Safely reset the form element — event.currentTarget can be null if unmounted
+      try {
+        const formEl = event.currentTarget as HTMLFormElement | null;
+        if (formEl && typeof formEl.reset === 'function') {
+          formEl.reset();
+        }
+      } catch (e) {
+        // ignore reset errors
+      }
     } catch (error) {
-      toast({ title: "Submission failed", description: "Please retry or reach out to support.", variant: "destructive" });
+      console.error("RFQ submission error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast({ 
+        title: "Submission failed", 
+        description: errorMessage || "Please retry or reach out to support.", 
+        variant: "destructive" 
+      });
     } finally {
       setSubmitting(false);
     }

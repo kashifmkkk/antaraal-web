@@ -46,6 +46,7 @@ import {
   AdminNotifications,
   AdminReviews,
   AdminPricingRanges,
+  ApproveProducts,
 } from "./pages/admin";
 
 const queryClient = new QueryClient();
@@ -121,6 +122,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="approve-products" element={<ApproveProducts />} />
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="vendors" element={<AdminVendors />} />
                   <Route path="rfqs" element={<AdminRFQs />} />
